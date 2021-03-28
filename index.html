@@ -24,7 +24,7 @@
 
 					var requestBody = {
 						operation: 'session', // What we want to do. "stream" = get the document, "session" = get data about the document, "email" = email the document somewhere
-						templateUrl: 'FIXME:GITHUB LINK TO STATIC CERT', // Where to get the marked up template from
+						templateUrl: 'https://raw.githubusercontent.com/Inq-pub/example-certificate/main/assets/certificate.html', // Where to get the marked up template from
 						test: true, // Needed to generate documents for free, you can remove this in production
 						data: { // Data to use when rendering the template
 							name: $('#formDataName').val(),
