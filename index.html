@@ -1,0 +1,160 @@
+<html>
+	<head>
+		<title>Inq - Award certificate generator</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+
+		<style>
+		body {
+			background-color: #8BC6EC;
+			background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
+			overflow-x: hidden;
+			padding: 20px;
+		}
+		</style>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
+		<script>
+			$(()=> {
+				/**
+				* Form submission handler
+				* Here we gather up all the form data and throw it at the Inq API to dispatch the request
+				*/
+				$('[data-action=submit]').on('click', e => {
+					var operation = $('#formOperation1').is(':checked') ? 'session' : 'email';
+
+					var requestBody = {
+						operation: 'session', // What we want to do. "stream" = get the document, "session" = get data about the document, "email" = email the document somewhere
+						templateUrl: 'FIXME:GITHUB LINK TO STATIC CERT', // Where to get the marked up template from
+						test: true, // Needed to generate documents for free, you can remove this in production
+						data: { // Data to use when rendering the template
+							name: $('#formDataName').val(),
+							title: $('#formDataTitle').val(),
+						},
+					};
+
+					if (operation == 'email') { // Add email fields if we're in email mode
+						Object.assign(requestBody, {
+							operation: 'email',
+							email: {
+								profile: 'demoEmail', // Existing email configuration to use
+								to: $('#formEmailTo').val(),
+								subject: $('#formEmailSubject').val(),
+								body: $('#formEmailBody').val(),
+							},
+						});
+					}
+
+					fetch('https://inq.pub/api/doc/fromTemplate', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							apikey: 'acmekey', // FIXME: Change this to your one of your own accounts API keys
+						},
+						body: JSON.stringify(requestBody),
+					})
+						.then(response => response.json())
+						.then(data => {
+							if (operation == 'session') { // If we're in session mode - add a link to the document
+								$('#formMessage')
+									.html('<a href="' + data.url + '" target="_blank">Click to see your certificate</a>')
+									.slideDown();
+							} else if (operation == 'email') { // If we're in email mode - display a generic message
+								$('#formMessage')
+									.html('Email sent to ' + $('#formEmailTo').val())
+									.slideDown();
+							}
+						})
+				});
+
+				/**
+				* Dynamically show/hide all elements matching [data-method="String'] based on the method changing
+				* This is really just a poor-mans 'v-show' Vue equivalent
+				*/
+				$('[name="formOperation"]').on('change', ()=> {
+					var operation = $('#formOperation1').is(':checked') ? 'session' : 'email';
+
+					// Hide / show [data-method] bound items
+					$('[data-method]').each((index, el) => {
+						var $el = $(el);
+						if ($el.attr('data-method') != operation && $el.is(':visible')) {
+							$el.slideUp();
+						} else if ($el.attr('data-method') == operation && !$el.is(':visible')) {
+							$el.slideDown();
+						}
+					});
+
+					$('[data-action=submit]').text(operation == 'session' ? 'Generate!' : 'Email it!');
+				});
+
+				$('[data-method][data-method!="session"]').css('display', 'none'); // Hide initial state (skips animation on page load)
+			});
+		</script>
+	</head>
+	<body>
+		<div class="row d-flex align-items-lg-center h-100">
+			<div class="col-sm-12 col-lg-6 offset-lg-3">
+				<div class="card">
+					<h5 class="card-header">Inq - Award certificate generator</h5>
+					<form class="card-body form form-horizontal">
+						<div class="form-group row">
+							<label for="formOperation" class="col-sm-2 col-form-label">Method</label>
+							<div class="col-sm-10">
+								<div class="form-check form-check-inline mt-2">
+									<input class="form-check-input" type="radio" name="formOperation" id="formOperation1" value="stream" checked>
+									<label class="form-check-label" for="formOperation1">Download</label>
+								</div>
+								<div class="form-check form-check-inline">
+									<input class="form-check-input" type="radio" name="formOperation" id="formOperation2" value="email">
+									<label class="form-check-label" for="formOperation2">Email</label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group row hide" data-method="email">
+							<label for="formEmail" class="col-sm-2 col-form-label">Email</label>
+							<div class="col-sm-10">
+								<input type="email" id="formEmailTo" value="someone@somewhere.com" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row" data-method="email">
+							<label for="formEmailSubject" class="col-sm-2 col-form-label">Email subject</label>
+							<div class="col-sm-10">
+								<input type="text" id="formEmailSubject" value="You're amazing!" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row" data-method="email">
+							<label for="formEmailSubject" class="col-sm-2 col-form-label">Email body</label>
+							<div class="col-sm-10">
+								<textarea type="text" id="formEmailBody" class="form-control" rows="6">
+Hey {{name}},
+
+You've been awarded the title of "{{title}"!
+
+See the attachment for your certificate.
+								</textarea>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="formEmail" class="col-sm-2 col-form-label">Person name</label>
+							<div class="col-sm-10">
+								<input type="text" id="formDataName" value="Joe Random" class="form-control">
+							</div>
+						</div>
+						<div class="form-group row">
+							<label for="formEmail" class="col-sm-2 col-form-label">Certificate title</label>
+							<div class="col-sm-10">
+								<input type="text" id="formDataTitle" value="Most amazing engineer" class="form-control">
+							</div>
+						</div>
+						<div id="formMessage" class="alert alert-success" style="display: none">
+							Generated document link will be placed here
+						</div>
+					</form>
+					<div class="card-footer d-flex justify-content-between">
+						<a href="https://inq.pub" target="_blank" class="btn btn-link">inq.pub</a>
+						<button data-action="submit" class="btn btn-success">Generate!</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
