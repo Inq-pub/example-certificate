@@ -58,12 +58,19 @@
 					})
 						.then(response => response.json())
 						.then(data => {
-							if (operation == 'session') { // If we're in session mode - add a link to the document
+							if (data.err) { // Something went wrong
 								$('#formMessage')
-									.html('<a href="' + data.url + '" target="_blank">Click to see your certificate</a>')
+									.addClass('alert-danger')
+									.html('Something went wrong: ' + data.err)
+									.slideDown();
+							} else if (operation == 'session') { // If we're in session mode - add a link to the document
+								$('#formMessage')
+									.addClass('alert-success')
+									.html('<a href="' + data.url + '" target="_blank" class="text-success">Click to see your certificate</a>')
 									.slideDown();
 							} else if (operation == 'email') { // If we're in email mode - display a generic message
 								$('#formMessage')
+									.addClass('alert-info')
 									.html('Email sent to ' + $('#formEmailTo').val())
 									.slideDown();
 							}
@@ -149,7 +156,7 @@ See the attachment for your certificate.
 								<input type="text" id="formDataTitle" value="Most amazing engineer" class="form-control">
 							</div>
 						</div>
-						<div id="formMessage" class="alert alert-success" style="display: none">
+						<div id="formMessage" class="alert" style="display: none">
 							Generated document link will be placed here
 						</div>
 					</form>
