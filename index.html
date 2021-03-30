@@ -60,16 +60,19 @@
 						.then(data => {
 							if (data.err) { // Something went wrong
 								$('#formMessage')
+									.removeClass('alert-danger alert-success alert-info')
 									.addClass('alert-danger')
 									.html('Something went wrong: ' + data.err)
 									.slideDown();
 							} else if (operation == 'session') { // If we're in session mode - add a link to the document
 								$('#formMessage')
+									.removeClass('alert-danger alert-success alert-info')
 									.addClass('alert-success')
 									.html('<a href="' + data.url + '" target="_blank" class="text-success">Click to see your certificate</a>')
 									.slideDown();
 							} else if (operation == 'email') { // If we're in email mode - display a generic message
 								$('#formMessage')
+									.removeClass('alert-danger alert-success alert-info')
 									.addClass('alert-info')
 									.html('Email sent to ' + $('#formEmailTo').val())
 									.slideDown();
