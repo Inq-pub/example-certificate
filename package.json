@@ -1,0 +1,20 @@
+{
+  "name": "@inq/example-certificate",
+  "version": "0.0.0",
+  "description": "Inq.pub Example: Award certificate generator",
+  "main": "index.html",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Inq-pub/example-certificate.git"
+  },
+  "keywords": [
+    "inq",
+    "pdf"
+  ],
+  "author": "Matt Carter <m@ttcarter.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Inq-pub/example-certificate/issues"
+  },
+  "homepage": "https://github.com/Inq-pub/example-certificate#readme"
+}
